@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 const links = [
   { href: "/", label: "New Invoice" },
@@ -12,9 +13,18 @@ const links = [
 
 export default function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Hide nav on login page
+  if (pathname === "/login") return null;
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
 
   return (
-    <nav className="flex gap-4">
+    <nav className="flex items-center gap-4">
       {links.map((link) => (
         <Link
           key={link.href}
@@ -28,6 +38,12 @@ export default function Nav() {
           {link.label}
         </Link>
       ))}
+      <button
+        onClick={handleLogout}
+        className="text-sm px-3 py-1 rounded-md text-blue-200 hover:text-white hover:bg-white/10 transition ml-2"
+      >
+        Logout
+      </button>
     </nav>
   );
 }

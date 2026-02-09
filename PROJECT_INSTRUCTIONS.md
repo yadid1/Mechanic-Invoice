@@ -90,13 +90,20 @@ npm run build        # production build
 2. **Invoice form** — Customer info, car model, date, dynamic line items, warranty selection, notes
 3. **PDF generation** — Branded PDF with jsPDF (auto-downloads on submit)
 4. **Supabase DB** — Invoices + line items stored in Supabase, invoices list page
-5. *(skipped for now)* **Auth** — Password login for shop owner
+5. **Auth** — Supabase Auth email/password login, AuthProvider route protection, RLS policies, logout
 6. **Expense tracking** — Add/delete expenses with categories and vendor tracking
 7. **Dashboard** — Revenue vs expenses bar chart, profit trend line chart, weekly/monthly/yearly toggle
 
 ## Remaining Work
-- **Phase 5: Authentication** — Supabase Auth with email/password login. Lock down RLS policies so only authenticated users can read/write. Add login page, protect all routes.
 - **Deployment to Vercel** — Connect GitHub repo, set env vars in Vercel dashboard, deploy.
+
+## Auth Setup
+- Login page at `/login` with email/password
+- `AuthProvider` wraps the entire app — redirects unauthenticated users to `/login`
+- Nav and header are hidden on the login page
+- Logout button in the nav bar
+- RLS policies in `supabase/auth_policies.sql` lock all tables to authenticated users only
+- SQL files: `supabase/schema.sql` (invoices + line_items), `supabase/expenses.sql` (expenses), `supabase/auth_policies.sql` (RLS lockdown)
 
 ## Key Design Decisions
 - PDF generation is **client-side** (jsPDF) — no server-side rendering needed
