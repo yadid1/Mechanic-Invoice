@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { generateInvoicePDF } from "@/lib/generateInvoicePDF";
+import { supabase } from "@/lib/supabase";
 
 interface LineItem {
   id: number;
@@ -31,6 +32,8 @@ export default function InvoiceForm() {
   const [customWarranty, setCustomWarranty] = useState("");
   const [notes, setNotes] = useState("");
   const [nextId, setNextId] = useState(2);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const total = lineItems.reduce((sum, item) => {
     const price = parseFloat(item.price) || 0;
@@ -59,8 +62,13 @@ export default function InvoiceForm() {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
+    setMessage(null);
+
+    const warrantyValue =
+      warranty === "custom" ? customWarranty : warrantyLabels[warranty];
 
     const invoiceData = {
       customerName,
@@ -72,16 +80,59 @@ export default function InvoiceForm() {
         price: parseFloat(item.price) || 0,
       })),
       total,
-      warranty:
-        warranty === "custom"
-          ? customWarranty
-          : warrantyLabels[warranty],
+      warranty: warrantyValue,
       notes,
     };
 
-    const doc = generateInvoicePDF(invoiceData);
-    const fileName = `Invoice_${customerName.replace(/\s+/g, "_")}_${date}.pdf`;
-    doc.save(fileName);
+    try {
+      // 1. Insert invoice into Supabase
+      const { data: invoice, error: invoiceError } = await supabase
+        .from("invoices")
+        .insert({
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          car_model: carModel,
+          date,
+          total,
+          warranty: warrantyValue,
+          notes: notes || null,
+        })
+        .select("id")
+        .single();
+
+      if (invoiceError) throw invoiceError;
+
+      // 2. Insert line items linked to the invoice
+      const { error: itemsError } = await supabase.from("line_items").insert(
+        invoiceData.lineItems.map((item) => ({
+          invoice_id: invoice.id,
+          description: item.description,
+          price: item.price,
+        }))
+      );
+
+      if (itemsError) throw itemsError;
+
+      // 3. Generate and download PDF
+      const doc = generateInvoicePDF(invoiceData);
+      const fileName = `Invoice_${customerName.replace(/\s+/g, "_")}_${date}.pdf`;
+      doc.save(fileName);
+
+      setMessage({ type: "success", text: "Invoice saved and PDF downloaded!" });
+    } catch (err) {
+      console.error("Failed to save invoice:", err);
+      // Still generate the PDF even if DB save fails
+      const doc = generateInvoicePDF(invoiceData);
+      const fileName = `Invoice_${customerName.replace(/\s+/g, "_")}_${date}.pdf`;
+      doc.save(fileName);
+
+      setMessage({
+        type: "error",
+        text: "PDF downloaded, but failed to save to database. Check your Supabase connection.",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -330,6 +381,19 @@ export default function InvoiceForm() {
         />
       </section>
 
+      {/* Status Message */}
+      {message && (
+        <div
+          className={`p-4 rounded-lg text-sm font-medium ${
+            message.type === "success"
+              ? "bg-green-50 text-green-800 border border-green-200"
+              : "bg-red-50 text-red-800 border border-red-200"
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
+
       {/* Submit */}
       <div className="flex justify-end gap-4">
         <button
@@ -353,9 +417,10 @@ export default function InvoiceForm() {
         </button>
         <button
           type="submit"
-          className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-light transition shadow-sm"
+          disabled={saving}
+          className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-light transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Create Invoice
+          {saving ? "Saving..." : "Create Invoice"}
         </button>
       </div>
     </form>

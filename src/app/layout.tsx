@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Nav from "@/components/Nav";
 
 export const metadata: Metadata = {
   title: "Alamillas Carburetors - Invoice System",
@@ -20,6 +21,7 @@ export default function RootLayout({
               <h1 className="text-xl font-bold tracking-tight">Alamillas Carburetors</h1>
               <p className="text-sm text-blue-200">920 W 1st St, Santa Ana, CA 92703 &bull; (714) 667-5228</p>
             </div>
+            <Nav />
           </div>
         </header>
         <main className="max-w-5xl mx-auto px-4 py-8">
