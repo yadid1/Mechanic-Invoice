@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { generateInvoicePDF } from "@/lib/generateInvoicePDF";
 
 interface LineItem {
   id: number;
@@ -78,11 +79,9 @@ export default function InvoiceForm() {
       notes,
     };
 
-    console.log("Invoice data:", invoiceData);
-    alert(
-      "Invoice created! (PDF generation coming in Phase 3)\n\nTotal: $" +
-        total.toFixed(2)
-    );
+    const doc = generateInvoicePDF(invoiceData);
+    const fileName = `Invoice_${customerName.replace(/\s+/g, "_")}_${date}.pdf`;
+    doc.save(fileName);
   };
 
   return (
