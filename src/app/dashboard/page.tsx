@@ -162,7 +162,7 @@ export default function DashboardPage() {
                   tickFormatter={(v) => `$${v}`}
                 />
                 <Tooltip
-                  formatter={(value: number) => `$${value.toFixed(2)}`}
+                  formatter={(value) => `$${Number(value ?? 0).toFixed(2)}`}
                   contentStyle={{
                     borderRadius: "8px",
                     border: "1px solid #e2e8f0",
@@ -202,7 +202,7 @@ export default function DashboardPage() {
                   tickFormatter={(v) => `$${v}`}
                 />
                 <Tooltip
-                  formatter={(value: number) => `$${value.toFixed(2)}`}
+                  formatter={(value) => `$${Number(value ?? 0).toFixed(2)}`}
                   contentStyle={{
                     borderRadius: "8px",
                     border: "1px solid #e2e8f0",
