@@ -226,9 +226,12 @@ export default function InvoiceForm() {
         </h2>
         <div className="space-y-3">
           {lineItems.map((item, index) => (
-            <div key={item.id} className="flex items-center gap-3">
-              <span className="text-sm text-gray-400 w-6 text-right">
+            <div key={item.id} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <span className="text-sm text-gray-400 w-6 text-right hidden sm:block">
                 {index + 1}.
+              </span>
+              <span className="text-sm text-gray-400 sm:hidden">
+                Item {index + 1}
               </span>
               <input
                 type="text"
@@ -240,43 +243,45 @@ export default function InvoiceForm() {
                 placeholder="Oil change, brake pads, etc."
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-light focus:border-primary-light outline-none transition"
               />
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                  $
-                </span>
-                <input
-                  type="number"
-                  required
-                  min="0"
-                  step="0.01"
-                  value={item.price}
-                  onChange={(e) =>
-                    updateLineItem(item.id, "price", e.target.value)
-                  }
-                  placeholder="0.00"
-                  className="w-32 pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-light focus:border-primary-light outline-none transition"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => removeLineItem(item.id)}
-                disabled={lineItems.length === 1}
-                className="p-2 text-gray-400 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                title="Remove item"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clipRule="evenodd"
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1 sm:flex-none">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="0.01"
+                    value={item.price}
+                    onChange={(e) =>
+                      updateLineItem(item.id, "price", e.target.value)
+                    }
+                    placeholder="0.00"
+                    className="w-full sm:w-32 pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-light focus:border-primary-light outline-none transition"
                   />
-                </svg>
-              </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeLineItem(item.id)}
+                  disabled={lineItems.length === 1}
+                  className="p-2 text-gray-400 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Remove item"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           ))}
         </div>

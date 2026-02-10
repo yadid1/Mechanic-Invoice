@@ -263,60 +263,98 @@ export default function ExpensesPage() {
             No expenses recorded yet.
           </p>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                  Date
-                </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                  Category
-                </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                  Description
-                </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                  Vendor
-                </th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                  Amount
-                </th>
-                <th className="px-6 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
+          <>
+            {/* Desktop table */}
+            <table className="w-full hidden md:table">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Date
+                  </th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Category
+                  </th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Description
+                  </th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Vendor
+                  </th>
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Amount
+                  </th>
+                  <th className="px-6 py-3"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {expenses.map((exp) => (
+                  <tr key={exp.id} className="hover:bg-gray-50 transition">
+                    <td className="px-6 py-3 text-sm text-gray-900">
+                      {formatDate(exp.date)}
+                    </td>
+                    <td className="px-6 py-3">
+                      <span className="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-md">
+                        {exp.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3 text-sm text-gray-700">
+                      {exp.description}
+                    </td>
+                    <td className="px-6 py-3 text-sm text-gray-500">
+                      {exp.vendor || "—"}
+                    </td>
+                    <td className="px-6 py-3 text-sm font-semibold text-gray-900 text-right">
+                      ${Number(exp.amount).toFixed(2)}
+                    </td>
+                    <td className="px-6 py-3 text-right">
+                      <button
+                        onClick={() => deleteExpense(exp.id)}
+                        className="text-gray-400 hover:text-red-500 transition text-sm"
+                        title="Delete expense"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Mobile card list */}
+            <div className="md:hidden divide-y divide-gray-100">
               {expenses.map((exp) => (
-                <tr key={exp.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-3 text-sm text-gray-900">
-                    {formatDate(exp.date)}
-                  </td>
-                  <td className="px-6 py-3">
-                    <span className="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-md">
-                      {exp.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3 text-sm text-gray-700">
-                    {exp.description}
-                  </td>
-                  <td className="px-6 py-3 text-sm text-gray-500">
-                    {exp.vendor || "—"}
-                  </td>
-                  <td className="px-6 py-3 text-sm font-semibold text-gray-900 text-right">
-                    ${Number(exp.amount).toFixed(2)}
-                  </td>
-                  <td className="px-6 py-3 text-right">
+                <div key={exp.id} className="px-4 py-3">
+                  <div className="flex items-start justify-between mb-1">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {exp.description}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="inline-block px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 rounded-md">
+                          {exp.category}
+                        </span>
+                        {exp.vendor && (
+                          <span className="text-xs text-gray-500">{exp.vendor}</span>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-sm font-bold text-gray-900 ml-3">
+                      ${Number(exp.amount).toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-xs text-gray-500">{formatDate(exp.date)}</span>
                     <button
                       onClick={() => deleteExpense(exp.id)}
-                      className="text-gray-400 hover:text-red-500 transition text-sm"
-                      title="Delete expense"
+                      className="text-xs text-gray-400 hover:text-red-500 transition"
                     >
                       Delete
                     </button>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </section>
     </div>

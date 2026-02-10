@@ -54,11 +54,11 @@ export default function InvoicesPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Invoices</h2>
-          <p className="text-gray-500 mt-1">All past invoices</p>
+          <p className="text-gray-500 mt-1 hidden sm:block">All past invoices</p>
         </div>
         <Link
           href="/"
-          className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-light transition"
+          className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-light transition text-sm"
         >
           + New Invoice
         </Link>
@@ -70,7 +70,7 @@ export default function InvoicesPage() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by phone number, name, or vehicle..."
+          placeholder="Search by phone, name, or vehicle..."
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-light focus:border-primary-light outline-none transition"
         />
         {search.trim() && (
@@ -91,57 +91,85 @@ export default function InvoicesPage() {
           <p className="text-gray-500">No invoices match &ldquo;{search}&rdquo;</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                  Date
-                </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                  Customer
-                </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                  Vehicle
-                </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                  Warranty
-                </th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
-                  Total
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filtered.map((inv) => (
-                <tr
-                  key={inv.id}
-                  onClick={() => router.push(`/invoices/${inv.id}`)}
-                  className="hover:bg-blue-50 transition cursor-pointer"
-                >
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {formatDate(inv.date)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-medium text-gray-900">
-                      {inv.customer_name}
-                    </p>
-                    <p className="text-xs text-gray-500">{inv.customer_phone}</p>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {inv.car_model}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {inv.warranty || "—"}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
-                    ${Number(inv.total).toFixed(2)}
-                  </td>
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Date
+                  </th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Customer
+                  </th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Vehicle
+                  </th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Warranty
+                  </th>
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">
+                    Total
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {filtered.map((inv) => (
+                  <tr
+                    key={inv.id}
+                    onClick={() => router.push(`/invoices/${inv.id}`)}
+                    className="hover:bg-blue-50 transition cursor-pointer"
+                  >
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {formatDate(inv.date)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-gray-900">
+                        {inv.customer_name}
+                      </p>
+                      <p className="text-xs text-gray-500">{inv.customer_phone}</p>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {inv.car_model}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {inv.warranty || "—"}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
+                      ${Number(inv.total).toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-3">
+            {filtered.map((inv) => (
+              <div
+                key={inv.id}
+                onClick={() => router.push(`/invoices/${inv.id}`)}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 cursor-pointer active:bg-blue-50 transition"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <p className="font-semibold text-gray-900">{inv.customer_name}</p>
+                    <p className="text-xs text-gray-500">{inv.customer_phone}</p>
+                  </div>
+                  <p className="text-lg font-bold text-gray-900">
+                    ${Number(inv.total).toFixed(2)}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                  <span>{inv.car_model}</span>
+                  <span>{formatDate(inv.date)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
