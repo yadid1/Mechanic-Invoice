@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { generateInvoicePDF } from "@/lib/generateInvoicePDF";
 import { supabase } from "@/lib/supabase";
 
@@ -23,6 +23,7 @@ const warrantyLabels: Record<WarrantyOption, string> = {
 
 export default function InvoiceForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [carModel, setCarModel] = useState("");
@@ -36,6 +37,60 @@ export default function InvoiceForm() {
   const [nextId, setNextId] = useState(2);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [scannedBanner, setScannedBanner] = useState(false);
+
+  // Load scanned invoice data from sessionStorage
+  useEffect(() => {
+    if (searchParams.get("from") !== "scan") return;
+
+    const stored = sessionStorage.getItem("scannedInvoice");
+    if (!stored) return;
+
+    try {
+      const data = JSON.parse(stored);
+      sessionStorage.removeItem("scannedInvoice");
+
+      if (data.customerName) setCustomerName(data.customerName);
+      if (data.customerPhone) setCustomerPhone(data.customerPhone);
+      if (data.carModel) setCarModel(data.carModel);
+      if (data.date) setDate(data.date);
+      if (data.notes) setNotes(data.notes);
+
+      // Map warranty text to radio option
+      if (data.warranty) {
+        const warrantyMap: Record<string, WarrantyOption> = {
+          "No Warranty": "none",
+          "6 Months": "6months",
+          "1 Year": "1year",
+          "2 Years": "2years",
+        };
+        const matched = warrantyMap[data.warranty];
+        if (matched) {
+          setWarranty(matched);
+        } else {
+          setWarranty("custom");
+          setCustomWarranty(data.warranty);
+        }
+      }
+
+      // Load line items
+      if (data.lineItems && data.lineItems.length > 0) {
+        const items = data.lineItems.map(
+          (item: { description: string; price: number }, i: number) => ({
+            id: i + 1,
+            description: item.description || "",
+            price: item.price ? String(item.price) : "",
+          })
+        );
+        setLineItems(items);
+        setNextId(items.length + 1);
+      }
+
+      setScannedBanner(true);
+    } catch {
+      // Ignore parse errors
+    }
+  }, [searchParams]);
 
   const total = lineItems.reduce((sum, item) => {
     const price = parseFloat(item.price) || 0;
@@ -188,6 +243,20 @@ export default function InvoiceForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Scanned data banner */}
+      {scannedBanner && (
+        <div className="p-4 rounded-lg bg-blue-50 text-blue-800 border border-blue-200 text-sm font-medium flex items-center justify-between">
+          <span>Auto-filled from scanned invoice. Review the data and make any corrections.</span>
+          <button
+            type="button"
+            onClick={() => setScannedBanner(false)}
+            className="text-blue-600 hover:text-blue-800 font-bold ml-4"
+          >
+            &times;
+          </button>
+        </div>
+      )}
+
       {/* Customer & Vehicle Info */}
       <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
