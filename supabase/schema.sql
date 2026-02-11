@@ -8,7 +8,7 @@ CREATE TABLE invoices (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   customer_name TEXT NOT NULL,
   customer_phone TEXT NOT NULL,
-  car_model TEXT NOT NULL,
+  car_model TEXT,
   date DATE NOT NULL,
   total DECIMAL(10,2) NOT NULL DEFAULT 0,
   warranty TEXT,

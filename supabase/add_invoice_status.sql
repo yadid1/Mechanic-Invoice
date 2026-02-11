@@ -3,7 +3,11 @@
 -- Run this in Supabase SQL Editor
 -- ============================================
 
-ALTER TABLE invoices ADD COLUMN status TEXT NOT NULL DEFAULT 'completed';
+-- Add status column (skip if already exists)
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'completed';
 
--- Update index for filtering by status
-CREATE INDEX idx_invoices_status ON invoices(status);
+-- Allow car_model to be null for draft invoices
+ALTER TABLE invoices ALTER COLUMN car_model DROP NOT NULL;
+
+-- Index for filtering by status (skip if already exists)
+CREATE INDEX IF NOT EXISTS idx_invoices_status ON invoices(status);
