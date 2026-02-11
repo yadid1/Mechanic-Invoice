@@ -21,6 +21,7 @@ interface Invoice {
   total: number;
   warranty: string | null;
   notes: string | null;
+  status: string;
   created_at: string;
   line_items: LineItem[];
 }
@@ -93,19 +94,36 @@ export default function InvoiceDetailPage() {
           >
             &larr; Back to Invoices
           </Link>
-          <h2 className="text-2xl font-bold text-gray-900 mt-2">
-            Invoice for {invoice.customer_name}
-          </h2>
+          <div className="flex items-center gap-3 mt-2">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Invoice for {invoice.customer_name}
+            </h2>
+            {invoice.status === "draft" && (
+              <span className="px-3 py-1 text-sm font-semibold bg-yellow-100 text-yellow-800 rounded-full">
+                Draft
+              </span>
+            )}
+          </div>
           <p className="text-gray-500 text-sm">
             Created {formatDate(invoice.date)}
           </p>
         </div>
-        <button
-          onClick={handleDownloadPDF}
-          className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-light transition shadow-sm"
-        >
-          Download PDF
-        </button>
+        <div className="flex items-center gap-3">
+          {invoice.status === "draft" && (
+            <Link
+              href={`/invoices/${invoice.id}/edit`}
+              className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow-sm"
+            >
+              Edit & Complete
+            </Link>
+          )}
+          <button
+            onClick={handleDownloadPDF}
+            className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-light transition shadow-sm"
+          >
+            Download PDF
+          </button>
+        </div>
       </div>
 
       {/* Customer & Vehicle */}

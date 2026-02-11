@@ -13,6 +13,7 @@ interface Invoice {
   date: string;
   total: number;
   warranty: string | null;
+  status: string;
   created_at: string;
 }
 
@@ -125,13 +126,20 @@ export default function InvoicesPage() {
                       {formatDate(inv.date)}
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">
-                        {inv.customer_name}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-gray-900">
+                          {inv.customer_name}
+                        </p>
+                        {inv.status === "draft" && (
+                          <span className="px-2 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded-full">
+                            Draft
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-500">{inv.customer_phone}</p>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
-                      {inv.car_model}
+                      {inv.car_model || "—"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
                       {inv.warranty || "—"}
@@ -155,7 +163,14 @@ export default function InvoicesPage() {
               >
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <p className="font-semibold text-gray-900">{inv.customer_name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-gray-900">{inv.customer_name}</p>
+                      {inv.status === "draft" && (
+                        <span className="px-2 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded-full">
+                          Draft
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500">{inv.customer_phone}</p>
                   </div>
                   <p className="text-lg font-bold text-gray-900">

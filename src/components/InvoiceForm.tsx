@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { generateInvoicePDF } from "@/lib/generateInvoicePDF";
 import { supabase } from "@/lib/supabase";
 
@@ -21,6 +22,7 @@ const warrantyLabels: Record<WarrantyOption, string> = {
 };
 
 export default function InvoiceForm() {
+  const router = useRouter();
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [carModel, setCarModel] = useState("");
@@ -62,6 +64,58 @@ export default function InvoiceForm() {
     );
   };
 
+  const saveDraft = async () => {
+    if (!customerName.trim() || !customerPhone.trim()) {
+      setMessage({ type: "error", text: "Name and phone number are required for a draft." });
+      return;
+    }
+
+    setSaving(true);
+    setMessage(null);
+
+    try {
+      const warrantyValue =
+        warranty === "custom" ? customWarranty : warrantyLabels[warranty];
+
+      const { data: invoice, error: invoiceError } = await supabase
+        .from("invoices")
+        .insert({
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          car_model: carModel || null,
+          date,
+          total,
+          warranty: warrantyValue,
+          notes: notes || null,
+          status: "draft",
+        })
+        .select("id")
+        .single();
+
+      if (invoiceError) throw invoiceError;
+
+      // Save any line items that have data
+      const filledItems = lineItems.filter((item) => item.description.trim());
+      if (filledItems.length > 0) {
+        const { error: itemsError } = await supabase.from("line_items").insert(
+          filledItems.map((item) => ({
+            invoice_id: invoice.id,
+            description: item.description,
+            price: parseFloat(item.price) || 0,
+          }))
+        );
+        if (itemsError) throw itemsError;
+      }
+
+      setMessage({ type: "success", text: "Draft saved! You can finish it later from the Invoices page." });
+    } catch (err) {
+      console.error("Failed to save draft:", err);
+      setMessage({ type: "error", text: "Failed to save draft. Check your Supabase connection." });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -85,7 +139,6 @@ export default function InvoiceForm() {
     };
 
     try {
-      // 1. Insert invoice into Supabase
       const { data: invoice, error: invoiceError } = await supabase
         .from("invoices")
         .insert({
@@ -96,13 +149,13 @@ export default function InvoiceForm() {
           total,
           warranty: warrantyValue,
           notes: notes || null,
+          status: "completed",
         })
         .select("id")
         .single();
 
       if (invoiceError) throw invoiceError;
 
-      // 2. Insert line items linked to the invoice
       const { error: itemsError } = await supabase.from("line_items").insert(
         invoiceData.lineItems.map((item) => ({
           invoice_id: invoice.id,
@@ -113,7 +166,6 @@ export default function InvoiceForm() {
 
       if (itemsError) throw itemsError;
 
-      // 3. Generate and download PDF
       const doc = generateInvoicePDF(invoiceData);
       const fileName = `Invoice_${customerName.replace(/\s+/g, "_")}_${date}.pdf`;
       doc.save(fileName);
@@ -121,7 +173,6 @@ export default function InvoiceForm() {
       setMessage({ type: "success", text: "Invoice saved and PDF downloaded!" });
     } catch (err) {
       console.error("Failed to save invoice:", err);
-      // Still generate the PDF even if DB save fails
       const doc = generateInvoicePDF(invoiceData);
       const fileName = `Invoice_${customerName.replace(/\s+/g, "_")}_${date}.pdf`;
       doc.save(fileName);
@@ -185,12 +236,11 @@ export default function InvoiceForm() {
               htmlFor="carModel"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Car Model *
+              Car Model
             </label>
             <input
               type="text"
               id="carModel"
-              required
               value={carModel}
               onChange={(e) => setCarModel(e.target.value)}
               placeholder="2020 Honda Civic"
@@ -213,6 +263,19 @@ export default function InvoiceForm() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-light focus:border-primary-light outline-none transition"
             />
           </div>
+        </div>
+
+        {/* Save Draft — right after customer info */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <button
+            type="button"
+            onClick={saveDraft}
+            disabled={saving}
+            className="px-5 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-primary hover:text-primary transition disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Save as Draft — finish later"}
+          </button>
+          <p className="text-xs text-gray-400 mt-1">Only name and phone required</p>
         </div>
       </section>
 
