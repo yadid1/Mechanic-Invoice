@@ -45,6 +45,7 @@ export default function EditInvoicePage() {
   const [customWarranty, setCustomWarranty] = useState("");
   const [notes, setNotes] = useState("");
   const [nextId, setNextId] = useState(1);
+  const [status, setStatus] = useState<string>("draft");
 
   useEffect(() => {
     async function fetchInvoice() {
@@ -64,6 +65,7 @@ export default function EditInvoicePage() {
       setCarModel(data.car_model || "");
       setDate(data.date);
       setNotes(data.notes || "");
+      setStatus(data.status || "draft");
 
       // Resolve warranty
       const w = data.warranty || "No Warranty";
@@ -166,7 +168,7 @@ export default function EditInvoicePage() {
       });
       doc.save(`Invoice_${customerName.replace(/\s+/g, "_")}_${date}.pdf`);
 
-      setMessage({ type: "success", text: "Invoice completed and PDF downloaded!" });
+      setMessage({ type: "success", text: status === "draft" ? "Invoice completed and PDF downloaded!" : "Invoice updated and PDF downloaded!" });
       setTimeout(() => router.push(`/invoices/${params.id}`), 1500);
     } catch (err) {
       console.error("Failed to update invoice:", err);
@@ -185,7 +187,9 @@ export default function EditInvoicePage() {
           &larr; Back to Invoice
         </Link>
         <h2 className="text-2xl font-bold text-gray-900 mt-2">Edit Invoice</h2>
-        <p className="text-gray-500 text-sm">Complete the draft and generate the PDF</p>
+        <p className="text-gray-500 text-sm">
+          {status === "draft" ? "Complete the draft and generate the PDF" : "Update the invoice details"}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
@@ -306,7 +310,7 @@ export default function EditInvoicePage() {
           </Link>
           <button type="submit" disabled={saving}
             className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-light transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
-            {saving ? "Saving..." : "Complete Invoice & Download PDF"}
+            {saving ? "Saving..." : status === "draft" ? "Complete Invoice & Download PDF" : "Save Changes & Download PDF"}
           </button>
         </div>
       </form>

@@ -109,14 +109,12 @@ export default function InvoiceDetailPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {invoice.status === "draft" && (
-            <Link
-              href={`/invoices/${invoice.id}/edit`}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow-sm"
-            >
-              Edit & Complete
-            </Link>
-          )}
+          <Link
+            href={`/invoices/${invoice.id}/edit`}
+            className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow-sm"
+          >
+            {invoice.status === "draft" ? "Edit & Complete" : "Edit"}
+          </Link>
           <button
             onClick={handleDownloadPDF}
             className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-light transition shadow-sm"
