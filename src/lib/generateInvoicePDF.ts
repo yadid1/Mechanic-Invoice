@@ -17,14 +17,8 @@ const SHOP = {
   phone: "(714) 667-5228",
 };
 
-const COLORS = {
-  primary: [30, 64, 175] as [number, number, number],     // #1e40af
-  darkText: [15, 23, 42] as [number, number, number],     // #0f172a
-  grayText: [100, 116, 139] as [number, number, number],  // #64748b
-  lightGray: [241, 245, 249] as [number, number, number], // #f1f5f9
-  white: [255, 255, 255] as [number, number, number],
-  border: [226, 232, 240] as [number, number, number],    // #e2e8f0
-};
+const BLACK: [number, number, number] = [0, 0, 0];
+const GRAY: [number, number, number] = [120, 120, 120];
 
 export function generateInvoicePDF(data: InvoiceData): jsPDF {
   const doc = new jsPDF({ unit: "mm", format: "letter" });
@@ -33,150 +27,143 @@ export function generateInvoicePDF(data: InvoiceData): jsPDF {
   const contentWidth = pageWidth - margin * 2;
   let y = 20;
 
-  // ── Header: Blue banner ──
-  doc.setFillColor(...COLORS.primary);
-  doc.rect(0, 0, pageWidth, 38, "F");
-
-  doc.setTextColor(...COLORS.white);
-  doc.setFontSize(22);
+  // ── Header: Shop name + info (text only, no filled banner) ──
+  doc.setTextColor(...BLACK);
+  doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
-  doc.text(SHOP.name, margin, 16);
+  doc.text(SHOP.name, margin, y);
 
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.text(`${SHOP.address}  |  ${SHOP.phone}`, margin, 24);
+  doc.setTextColor(...GRAY);
+  doc.text(`${SHOP.address}  |  ${SHOP.phone}`, margin, y + 6);
 
-  // Invoice label on right
+  // Invoice label + date on right
+  doc.setTextColor(...BLACK);
   doc.setFontSize(14);
   doc.setFont("helvetica", "bold");
-  doc.text("INVOICE", pageWidth - margin, 16, { align: "right" });
+  doc.text("INVOICE", pageWidth - margin, y, { align: "right" });
 
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.text(`Date: ${formatDate(data.date)}`, pageWidth - margin, 24, {
+  doc.setTextColor(...GRAY);
+  doc.text(`Date: ${formatDate(data.date)}`, pageWidth - margin, y + 6, {
     align: "right",
   });
 
-  y = 48;
-
-  // ── Customer & Vehicle Info ──
-  doc.setFillColor(...COLORS.lightGray);
-  doc.roundedRect(margin, y, contentWidth, 28, 2, 2, "F");
-
-  doc.setTextColor(...COLORS.grayText);
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "normal");
-  doc.text("CUSTOMER", margin + 6, y + 6);
-  doc.text("PHONE", margin + 6, y + 18);
-  doc.text("VEHICLE", pageWidth / 2 + 4, y + 6);
-
-  doc.setTextColor(...COLORS.darkText);
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text(data.customerName, margin + 6, y + 12);
-  doc.text(data.customerPhone, margin + 6, y + 24);
-  doc.text(data.carModel, pageWidth / 2 + 4, y + 12);
-
-  y += 38;
-
-  // ── Work Performed Table ──
-  // Table header
-  doc.setFillColor(...COLORS.primary);
-  doc.rect(margin, y, contentWidth, 8, "F");
-  doc.setTextColor(...COLORS.white);
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "bold");
-  doc.text("WORK PERFORMED", margin + 4, y + 5.5);
-  doc.text("PRICE", pageWidth - margin - 4, y + 5.5, { align: "right" });
-  y += 8;
-
-  // Table rows
-  data.lineItems.forEach((item, i) => {
-    if (i % 2 === 0) {
-      doc.setFillColor(...COLORS.lightGray);
-      doc.rect(margin, y, contentWidth, 8, "F");
-    }
-
-    doc.setTextColor(...COLORS.darkText);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(item.description, margin + 4, y + 5.5);
-    doc.text(`$${item.price.toFixed(2)}`, pageWidth - margin - 4, y + 5.5, {
-      align: "right",
-    });
-    y += 8;
-  });
-
-  // Border under table
-  doc.setDrawColor(...COLORS.border);
-  doc.setLineWidth(0.3);
+  // Thin line under header
+  y += 12;
+  doc.setDrawColor(...BLACK);
+  doc.setLineWidth(0.4);
   doc.line(margin, y, pageWidth - margin, y);
 
-  // Total row
+  y += 8;
+
+  // ── Customer & Vehicle Info ──
+  doc.setTextColor(...GRAY);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.text("CUSTOMER", margin, y);
+  doc.text("PHONE", margin, y + 12);
+  doc.text("VEHICLE", pageWidth / 2, y);
+
+  doc.setTextColor(...BLACK);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.text(data.customerName, margin, y + 5);
+  doc.text(data.customerPhone, margin, y + 17);
+  doc.text(data.carModel || "—", pageWidth / 2, y + 5);
+
+  y += 26;
+
+  // Thin line
+  doc.setDrawColor(...GRAY);
+  doc.setLineWidth(0.2);
+  doc.line(margin, y, pageWidth - margin, y);
+
+  y += 6;
+
+  // ── Work Performed Table ──
+  // Table header (text only, no fill)
+  doc.setTextColor(...BLACK);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text("WORK PERFORMED", margin, y);
+  doc.text("PRICE", pageWidth - margin, y, { align: "right" });
+
   y += 2;
-  doc.setFillColor(...COLORS.primary);
-  doc.roundedRect(pageWidth - margin - 60, y, 60, 12, 2, 2, "F");
-  doc.setTextColor(...COLORS.white);
+  doc.setDrawColor(...BLACK);
+  doc.setLineWidth(0.3);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 5;
+
+  // Table rows (no alternating background)
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  data.lineItems.forEach((item) => {
+    doc.setTextColor(...BLACK);
+    doc.text(item.description, margin + 2, y);
+    doc.text(`$${item.price.toFixed(2)}`, pageWidth - margin - 2, y, {
+      align: "right",
+    });
+    y += 7;
+  });
+
+  // Line above total
+  doc.setDrawColor(...GRAY);
+  doc.setLineWidth(0.2);
+  doc.line(margin, y, pageWidth - margin, y);
+
+  // Total row (text only, no filled badge)
+  y += 7;
+  doc.setTextColor(...BLACK);
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.text("TOTAL", pageWidth - margin - 56, y + 8);
-  doc.text(`$${data.total.toFixed(2)}`, pageWidth - margin - 4, y + 8, {
+  doc.text("TOTAL", pageWidth - margin - 55, y);
+  doc.text(`$${data.total.toFixed(2)}`, pageWidth - margin - 2, y, {
     align: "right",
   });
 
-  y += 22;
+  y += 12;
 
   // ── Warranty ──
   if (data.warranty && data.warranty !== "No Warranty") {
-    doc.setFillColor(...COLORS.lightGray);
-    doc.roundedRect(margin, y, contentWidth, 14, 2, 2, "F");
-
-    doc.setTextColor(...COLORS.grayText);
+    doc.setTextColor(...GRAY);
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text("WARRANTY", margin + 6, y + 5);
+    doc.text("WARRANTY", margin, y);
 
-    doc.setTextColor(...COLORS.darkText);
+    doc.setTextColor(...BLACK);
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
-    doc.text(data.warranty, margin + 6, y + 11);
-    y += 20;
+    doc.text(data.warranty, margin, y + 5);
+    y += 14;
   }
 
   // ── Notes / Recommendations ──
   if (data.notes) {
-    doc.setTextColor(...COLORS.grayText);
+    doc.setTextColor(...GRAY);
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text("NOTES & MECHANIC RECOMMENDATIONS", margin, y + 4);
-    y += 8;
+    doc.text("NOTES & MECHANIC RECOMMENDATIONS", margin, y);
+    y += 5;
 
-    doc.setTextColor(...COLORS.darkText);
+    doc.setTextColor(...BLACK);
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
 
-    const noteLines = doc.splitTextToSize(data.notes, contentWidth - 8);
-    doc.setFillColor(...COLORS.lightGray);
-    doc.roundedRect(
-      margin,
-      y - 2,
-      contentWidth,
-      noteLines.length * 5 + 8,
-      2,
-      2,
-      "F"
-    );
-    doc.text(noteLines, margin + 4, y + 4);
-    y += noteLines.length * 5 + 12;
+    const noteLines = doc.splitTextToSize(data.notes, contentWidth - 4);
+    doc.text(noteLines, margin + 2, y);
+    y += noteLines.length * 5 + 6;
   }
 
   // ── Footer ──
   const footerY = doc.internal.pageSize.getHeight() - 15;
-  doc.setDrawColor(...COLORS.border);
-  doc.setLineWidth(0.3);
+  doc.setDrawColor(...GRAY);
+  doc.setLineWidth(0.2);
   doc.line(margin, footerY - 4, pageWidth - margin, footerY - 4);
 
-  doc.setTextColor(...COLORS.grayText);
+  doc.setTextColor(...GRAY);
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
   doc.text("Thank you for your business!", pageWidth / 2, footerY, {
