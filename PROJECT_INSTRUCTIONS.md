@@ -118,5 +118,8 @@ npm run build        # production build
 ## Expense Categories
 Parts, Tools & Equipment, Rent, Utilities, Insurance, Supplies, Vendor / Wholesale, Marketing, Other
 
+## Invoice PDF Notices
+- Every PDF includes a boxed smog disclaimer (`SMOG_DISCLAIMER` in `src/lib/generateInvoicePDF.ts`): the shop does not guarantee a smog check pass.
+
 ## Warranty Options
 None, 6 Months, 1 Year, 2 Years, Custom (free text)
