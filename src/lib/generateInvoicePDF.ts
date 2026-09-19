@@ -12,6 +12,9 @@ export interface InvoiceData {
   notes: string;
 }
 
+const SMOG_DISCLAIMER =
+  "We do not guarantee that any vehicle will pass a smog check as a result of our work.";
+
 const SHOP = {
   name: "Alamillas Carburetors",
   address: "920 W 1st St, Santa Ana, CA 92703",
@@ -159,6 +162,25 @@ export function generateInvoicePDF(data: InvoiceData): jsPDF {
     doc.text(noteLines, margin + 2, y);
     y += noteLines.length * 5 + 6;
   }
+
+  // ── Smog Disclaimer ──
+  // Shown on every invoice: carb work does not guarantee a smog pass
+  doc.setTextColor(...GRAY);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.text("NOTICE", margin, y);
+  y += 5;
+
+  doc.setTextColor(...BLACK);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  const disclaimerLines = doc.splitTextToSize(SMOG_DISCLAIMER, contentWidth - 8);
+  const boxHeight = disclaimerLines.length * 5 + 6;
+  doc.setDrawColor(...BLACK);
+  doc.setLineWidth(0.4);
+  doc.rect(margin, y - 4, contentWidth, boxHeight);
+  doc.text(disclaimerLines, margin + 4, y + 1);
+  y += boxHeight + 4;
 
   // ── Footer ──
   const footerY = doc.internal.pageSize.getHeight() - 15;
