@@ -42,7 +42,8 @@ src/
 - `id` UUID (PK, auto-generated)
 - `customer_name` TEXT
 - `customer_phone` TEXT
-- `car_model` TEXT
+- `car_model` TEXT (nullable)
+- `license_plate` TEXT (nullable)
 - `date` DATE
 - `total` DECIMAL(10,2)
 - `warranty` TEXT (nullable)
@@ -70,6 +71,8 @@ All tables have RLS enabled with open policies (allow all). These need to be rep
 ### SQL Files
 - `supabase/schema.sql` — Creates invoices + line_items tables
 - `supabase/expenses.sql` — Creates expenses table
+- `supabase/add_invoice_status.sql` — Adds `status` column (draft/completed)
+- `supabase/add_license_plate.sql` — Adds `license_plate` column
 
 ## Environment Variables
 Create `.env.local` in the project root:

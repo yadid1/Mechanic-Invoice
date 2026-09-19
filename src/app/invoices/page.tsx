@@ -10,6 +10,7 @@ interface Invoice {
   customer_name: string;
   customer_phone: string;
   car_model: string;
+  license_plate: string | null;
   date: string;
   total: number;
   warranty: string | null;
@@ -46,7 +47,8 @@ export default function InvoicesPage() {
     return (
       inv.customer_phone.toLowerCase().includes(q) ||
       inv.customer_name.toLowerCase().includes(q) ||
-      inv.car_model.toLowerCase().includes(q)
+      (inv.car_model || "").toLowerCase().includes(q) ||
+      (inv.license_plate || "").toLowerCase().includes(q)
     );
   });
 
@@ -140,6 +142,9 @@ export default function InvoicesPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
                       {inv.car_model || "—"}
+                      {inv.license_plate && (
+                        <p className="text-xs text-gray-500">{inv.license_plate}</p>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
                       {inv.warranty || "—"}
@@ -178,7 +183,10 @@ export default function InvoicesPage() {
                   </p>
                 </div>
                 <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>{inv.car_model}</span>
+                  <span>
+                    {inv.car_model}
+                    {inv.license_plate && ` · ${inv.license_plate}`}
+                  </span>
                   <span>{formatDate(inv.date)}</span>
                 </div>
               </div>

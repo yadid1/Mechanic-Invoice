@@ -39,6 +39,7 @@ export default function EditInvoicePage() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [carModel, setCarModel] = useState("");
+  const [licensePlate, setLicensePlate] = useState("");
   const [date, setDate] = useState("");
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [warranty, setWarranty] = useState<WarrantyOption>("6months");
@@ -63,6 +64,7 @@ export default function EditInvoicePage() {
       setCustomerName(data.customer_name);
       setCustomerPhone(data.customer_phone);
       setCarModel(data.car_model || "");
+      setLicensePlate(data.license_plate || "");
       setDate(data.date);
       setNotes(data.notes || "");
       setStatus(data.status || "draft");
@@ -127,6 +129,7 @@ export default function EditInvoicePage() {
           customer_name: customerName,
           customer_phone: customerPhone,
           car_model: carModel,
+          license_plate: licensePlate || null,
           date,
           total,
           warranty: warrantyValue,
@@ -157,6 +160,7 @@ export default function EditInvoicePage() {
         customerName,
         customerPhone,
         carModel,
+        licensePlate,
         date,
         lineItems: filledItems.map((item) => ({
           description: item.description,
@@ -211,6 +215,11 @@ export default function EditInvoicePage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Car Model *</label>
               <input type="text" required value={carModel} onChange={(e) => setCarModel(e.target.value)} placeholder="2020 Honda Civic"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-light focus:border-primary-light outline-none transition" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">License Plate</label>
+              <input type="text" value={licensePlate} onChange={(e) => setLicensePlate(e.target.value.toUpperCase())} placeholder="8ABC123"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-light focus:border-primary-light outline-none transition uppercase" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Date *</label>

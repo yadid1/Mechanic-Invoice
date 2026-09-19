@@ -47,6 +47,7 @@ Extract the following information and return it as a JSON object. Only return th
   "customerName": "the customer's full name",
   "customerPhone": "the customer's phone number",
   "carModel": "the car year, make, and model (e.g., 2020 Honda Civic)",
+  "licensePlate": "the license plate number if written, or null",
   "date": "the date in YYYY-MM-DD format",
   "lineItems": [
     { "description": "work item description", "price": 0.00 },

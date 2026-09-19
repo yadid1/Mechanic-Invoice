@@ -17,6 +17,7 @@ interface Invoice {
   customer_name: string;
   customer_phone: string;
   car_model: string;
+  license_plate: string | null;
   date: string;
   total: number;
   warranty: string | null;
@@ -58,6 +59,7 @@ export default function InvoiceDetailPage() {
       customerName: invoice.customer_name,
       customerPhone: invoice.customer_phone,
       carModel: invoice.car_model,
+      licensePlate: invoice.license_plate || "",
       date: invoice.date,
       lineItems: invoice.line_items.map((item) => ({
         description: item.description,
@@ -146,6 +148,12 @@ export default function InvoiceDetailPage() {
             <p className="text-xs text-gray-400">Vehicle</p>
             <p className="text-base font-medium text-gray-900">
               {invoice.car_model}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400">License Plate</p>
+            <p className="text-base font-medium text-gray-900">
+              {invoice.license_plate || "—"}
             </p>
           </div>
         </div>

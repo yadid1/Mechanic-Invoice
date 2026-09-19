@@ -7,6 +7,7 @@ interface ScannedData {
   customerName: string;
   customerPhone: string;
   carModel: string;
+  licensePlate: string | null;
   date: string;
   lineItems: { description: string; price: number }[];
   warranty: string | null;
@@ -277,6 +278,12 @@ export default function ScanInvoicePage() {
                 <p className="text-xs text-gray-400">Vehicle</p>
                 <p className="text-base font-medium text-gray-900">
                   {scannedData.carModel || "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">License Plate</p>
+                <p className="text-base font-medium text-gray-900">
+                  {scannedData.licensePlate || "—"}
                 </p>
               </div>
               <div>

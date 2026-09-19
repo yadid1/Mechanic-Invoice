@@ -4,6 +4,7 @@ export interface InvoiceData {
   customerName: string;
   customerPhone: string;
   carModel: string;
+  licensePlate?: string;
   date: string;
   lineItems: { description: string; price: number }[];
   total: number;
@@ -66,6 +67,7 @@ export function generateInvoicePDF(data: InvoiceData): jsPDF {
   doc.text("CUSTOMER", margin, y);
   doc.text("PHONE", margin, y + 12);
   doc.text("VEHICLE", pageWidth / 2, y);
+  doc.text("LICENSE PLATE", pageWidth / 2, y + 12);
 
   doc.setTextColor(...BLACK);
   doc.setFontSize(11);
@@ -73,6 +75,7 @@ export function generateInvoicePDF(data: InvoiceData): jsPDF {
   doc.text(data.customerName, margin, y + 5);
   doc.text(data.customerPhone, margin, y + 17);
   doc.text(data.carModel || "—", pageWidth / 2, y + 5);
+  doc.text(data.licensePlate || "—", pageWidth / 2, y + 17);
 
   y += 26;
 
